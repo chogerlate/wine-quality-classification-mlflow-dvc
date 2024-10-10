@@ -1,0 +1,5 @@
+outs:
+- md5: 14a58c911042f801365eaf0d690a21cd
+  size: 67701
+  hash: md5
+  path: WineQT.csv
