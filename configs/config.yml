@@ -1,0 +1,34 @@
+project:
+  name: wine-quality-classification-mlflow-dvc
+  description: A machine learning project to predict wine quality using physicochemical properties with DVC and MLflow for data versioning and experiment tracking.
+
+data:
+  raw:
+    path: data/raw/
+    description: Directory for raw, immutable data.
+  processed:
+    path: data/processed/
+    description: Directory for cleaned and processed data.
+
+mlflow:
+  tracking_uri: http://localhost:5000
+  experiment_name: wine_quality_experiment
+
+dvc:
+  remote:
+    url: s3://my-dvc-bucket
+    credential: my-aws-credentials
+
+model:
+  type: xgboost
+  parameters:
+    objective: multi:softmax
+    num_class: 11
+    max_depth: 5
+    learning_rate: 0.1
+    n_estimators: 100
+    seed: 42
+
+evaluation:
+  metrics:
+    - accuracy
