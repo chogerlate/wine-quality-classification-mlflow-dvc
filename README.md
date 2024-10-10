@@ -22,3 +22,10 @@ wine-quality-classification-mlflow-dvc/
 ├── mlflow_tracking.py # Script for MLflow tracking
 └── README.md # Project documentation
 ```
+
+## Results
+Link: [Dagshub](https://dagshub.com/chogerlate/wine-quality-classification-mlflow-dvc)
+- Successfully manage data using DVC
+![image](https://github.com/user-attachments/assets/ba682ba0-7cf7-47cf-a990-3e10174d9b7f)
+- Experiment logging using MLflow hosted on Dagshub
+![image](https://github.com/user-attachments/assets/1991c840-94fc-4c84-9f27-a994eb96ddea)
