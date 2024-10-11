@@ -17,6 +17,10 @@ def preprocess_data(file_path: str) -> tuple:
     # Load the dataset
     data = pd.read_csv(file_path)
 
+    # Set the index if the 'Id' column exists
+    if 'Id' in data.columns:
+        data.set_index('Id', inplace=True)
+    
     # Separate features and target variable
     X = data.drop(columns=['quality'])
     y = data['quality'] - 3

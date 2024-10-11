@@ -2,25 +2,13 @@ import mlflow
 import mlflow.xgboost
 from models.xgb_model import initialize_xgb_model
 from features.preprocessing import preprocess_data
-import yaml
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import pandas as pd
 import dagshub
+from utils import load_config
+from skl2onnx.common.data_types import FloatTensorType
+import onnxmltools
 
-
-def load_config(config_path: str) -> dict:
-    """
-    Summary: Load the configuration from a YAML file.
-
-    Args:
-        config_path (str): The path to the YAML configuration file.
-
-    Returns:
-        dict: A dictionary containing the configuration parameters.
-    """
-    with open(config_path, 'r') as file:
-        config = yaml.safe_load(file)
-    return config
 
 def train_model(file_path: str, config: dict) -> None:
     """
@@ -38,27 +26,32 @@ def train_model(file_path: str, config: dict) -> None:
 
     # Initialize the model with parameters from the config
     params = config['model']['parameters']
-    xgb_model = initialize_xgb_model(params)
+    model = initialize_xgb_model(params)
+    # Train the model
+    model.fit(X_train, y_train)
+    # Log metrics
+    y_pred = model.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred, average='macro')
+    recall = recall_score(y_test, y_pred, average='macro')
+    f1 = f1_score(y_test, y_pred, average='macro')
+
+
+    # Convert the trained XGBoost model to ONNX format
+    initial_type = [('float_input', FloatTensorType([None, X_test.shape[1]]))]
+    onnx_model = onnxmltools.convert_xgboost(model, initial_types=initial_type)
 
     # Start MLflow experiment
     with mlflow.start_run(run_name=str(pd.Timestamp.now())):
-        # Train the model
-        xgb_model.fit(X_train, y_train)
 
         # Log model parameters
         mlflow.log_params(params)
 
         # Log the model
-        mlflow.xgboost.log_model(xgb_model, "model")
-
+        mlflow.xgboost.log_model(model, "model")
+        mlflow.onnx.log_model(onnx_model, "model_onnx")
+        
         # Log metrics
-        y_pred = xgb_model.predict(X_test)
-        accuracy = accuracy_score(y_test, y_pred)
-        precision = precision_score(y_test, y_pred, average='macro')
-        recall = recall_score(y_test, y_pred, average='macro')
-        f1 = f1_score(y_test, y_pred, average='macro')
-        
-        
         mlflow.log_metric("accuracy", accuracy)
         mlflow.log_metric("precision", precision)
         mlflow.log_metric("recall", recall)

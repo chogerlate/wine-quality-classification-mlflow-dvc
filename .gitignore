@@ -164,3 +164,7 @@ cython_debug/
 
 ## My custom ignore
 *.csv
+.vscode/
+mlartifacts/
+mlruns/
+*.onnx
